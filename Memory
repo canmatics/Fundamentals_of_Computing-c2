@@ -1,0 +1,70 @@
+#http://www.codeskulptor.org/#user43_3GRhNOOsJH_3.py
+
+#Memory the game. Click tiles, remember tiles, reward! 
+
+
+import simplegui, random 
+
+WIDTH = 1200
+HEIGHT = 150 
+
+cards = [i % 8 for i in range(16)]
+random.shuffle(cards)
+exposed = [False for i in range(16)]
+correct = [False for i in range(8)]
+state = 0 
+tries = 0
+
+
+def state_change(cur_card):
+    
+    global state, tries
+    
+    if state == 0:
+        state = 1
+        tries += 1 
+    
+    elif state == 1:
+        if prev_card == cards[cur_card]:
+            correct[cards[cur_card]] = True
+        state = 2
+        tries += 1
+    else:
+        for i in range(16):
+            if not correct[cards[i]]:
+                exposed[i] = False
+                state = 1
+                tries += 1
+                
+
+def click(pos):
+    global prev_card, exposed
+    card_width = WIDTH / 16
+    
+    for i in range(16):
+        if pos[0] >= card_width * i and pos[0] < card_width*(i+1) and not exposed[i]:
+            state_change(i)
+            prev_card = cards[i]
+            exposed[i] = True
+    
+
+def draw(canvas):
+    card_width = WIDTH / 16
+    for i in range(16):
+        if exposed[i]:
+            canvas.draw_text(str(cards[i]), [((card_width * i) + card_width/3), HEIGHT / 2], 50, "Red")
+       
+        
+        canvas.draw_line([(card_width*i), 0], [(card_width*i), HEIGHT], 5, "White")
+
+
+
+#create frame
+f = simplegui.create_frame("Memory", WIDTH, HEIGHT)
+
+#register handlers
+f.set_draw_handler(draw)
+f.set_mouseclick_handler(click)
+
+
+f.start()
